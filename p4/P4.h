@@ -33,6 +33,10 @@ public:
   /// Render the scene.
   void render() override;
 
+  void openNodeHyerarchy(SceneNode* node);
+
+  void deleteCurrentObject();
+
 private:
   enum ViewMode
   {
@@ -64,11 +68,7 @@ private:
   Reference<Scene> _scene;
   Reference<SceneEditor> _editor;
   Reference<GLRenderer> _renderer;
-  // **Begin temporary attributes
-  // Those are just to show some geometry
-  // They should be replaced by your scene hierarchy
-  std::vector<Reference<SceneObject>> _objects;
-  // **End temporary attributes
+
   SceneNode* _current{};
   Color _selectedWireframeColor{255, 102, 0};
   Flags<MoveBits> _moveFlags{};
@@ -86,8 +86,9 @@ private:
 
   static MeshMap _defaultMeshes;
 
-  void buildScene();
+  void buildScene(int index);
   void renderScene();
+  void recursiveRender(SceneObject*);
 
   void mainMenu();
   void fileMenu();
@@ -111,6 +112,7 @@ private:
   void drawPrimitive(Primitive&);
   void drawLight(Light&);
   void drawCamera(Camera&);
+  void drawViewport(Camera&);
 
   bool windowResizeEvent(int, int) override;
   bool keyInputEvent(int, int, int) override;
@@ -122,6 +124,80 @@ private:
 
   static void buildDefaultMeshes();
 
+  //for uniforms;
+  struct LightPropLoc
+  {
+      GLint _typeLoc;
+      GLint _colorLoc;
+      GLfloat _positionLoc;
+      GLfloat _directionLoc;
+      GLfloat _falloffLoc;
+      GLfloat _spotlightAngleRadiansLoc;
+      GLfloat _radialFalloffLoc;
+  };
+
+  struct LightProps {
+      int _type;
+      Color _color;
+      vec3f _position;
+      vec3f _direction;
+      float _falloff;
+      float _spotLightAngleRadians;
+      float _radialFalloff;
+  };
+
+  int _lightCount = 0;
+  GLint _ambientLightLoc;
+  GLint _NLLoc;
+  LightPropLoc _lightLocs[MAX_LIGHTS];
+  LightProps _lightProps[MAX_LIGHTS];
+
+  //materials
+  GLint _OaLoc;
+  GLint _OdLoc;
+  GLint _OsLoc;
+  GLint _nsLoc;
+
+  //primitive
+  GLfloat _transformLoc;
+  GLfloat _normalMatrixLoc;
+
+  //camera
+  GLfloat _vpMatrixLoc;
+  GLfloat _cameraPositionLoc;
+
+  void getLights() {
+      _lightCount = 0;
+      SceneObjectListIterator* it = _scene->objectIterator();
+      it->start(); //root is skipped
+      SceneObject* obj = it->next();
+      while (obj && _lightCount < MAX_LIGHTS) {
+          recursiveGetLights(obj);
+          obj = it->next();
+      }
+      it->dispose();
+  }
+
+  void recursiveGetLights(SceneObject* obj) {
+      Light* light = dynamic_cast<Light*>(obj->getComponent("Light"));
+      if (light) {
+          _lightProps[_lightCount]._type = light->type();
+          _lightProps[_lightCount]._color = light->color;
+          _lightProps[_lightCount]._position = light->transform()->position();
+          _lightProps[_lightCount]._direction = light->getWorldDirection();
+          _lightProps[_lightCount]._falloff = light->getFalloff();
+          _lightProps[_lightCount]._spotLightAngleRadians = light->getSpotlightAngleRadians();
+          _lightProps[_lightCount]._radialFalloff = light->getRadialFalloff();
+          _lightCount++;
+      }
+      SceneObjectListIterator* it = obj->objectIterator();
+      SceneObject* newObj = it->start();
+      while (newObj && _lightCount < MAX_LIGHTS) {
+          recursiveGetLights(newObj);
+          newObj = it->next();
+      }
+      it->dispose();
+  }
 }; // P4
 
 #endif // __P4_h

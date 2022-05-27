@@ -54,6 +54,18 @@ Camera::Camera(float aspect):
   updateProjection();
 }
 
+Camera::Camera(SceneObject* object, float aspect) :
+    Component{ "Camera", object },
+    _viewAngle{ 60 },
+    _height{ 10 },
+    _aspectRatio{ aspect },
+    _F{ 0.01f },
+    _B{ 1000.0f },
+    _projectionType{ Camera::Perspective }
+{
+    updateProjection();
+}
+
 Camera::~Camera()
 {
   if (this == _current)

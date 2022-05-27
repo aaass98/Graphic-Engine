@@ -31,6 +31,7 @@
 // Last revision: 18/11/2019
 
 #include "BVH.h"
+#include <stack>
 
 namespace cg
 { // begin namespace cg
@@ -239,7 +240,29 @@ BVH::iterate(BVHNodeFunction f) const
 bool
 BVH::intersect(const Ray& ray, Intersection& hit) const
 {
-  // TODO
+  hit.object = nullptr;
+  std::stack<Node*> stack;
+
+  stack.push(_root);
+  while (!stack.empty())
+  {
+    Node* node = stack.top();
+    stack.pop();
+
+    float min, max;
+    if (!node->bounds.intersect(ray, min, max))
+        //!intersect(ray, node->bounds))
+        continue;
+    if (node->isLeaf()) {
+        return true;
+    }
+    if (node->count==0)
+    {
+        stack.push(node->children[0]);
+        stack.push(node->children[1]);
+        continue;
+    }
+  }
   return false;
 }
 

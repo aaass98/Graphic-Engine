@@ -35,6 +35,7 @@
 
 #include "Component.h"
 #include "graphics/GLMesh.h"
+#include "Intersection.h"
 #include "Material.h"
 
 namespace cg
@@ -74,7 +75,7 @@ public:
     _meshName = meshName;
   }
 
-  bool intersect(const Ray& ray, float& distance) const;
+  bool intersect(const Ray& ray, Intersection& hit) const;
 
 private:
   Reference<TriangleMesh> _mesh;

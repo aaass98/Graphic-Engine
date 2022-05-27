@@ -56,40 +56,136 @@ makePrimitive(MeshMapIterator mit)
 }
 
 inline void
-P4::buildScene()
+P4::buildScene(int index)
 {
-  _current = _scene = new Scene{"Scene 1"};
-  _editor = new SceneEditor{*_scene};
-  _editor->setDefaultView((float)width() / (float)height());
-  // **Begin initialization of temporary attributes
-  // It should be replaced by your scene initialization
-  {
-    auto o = new SceneObject{"Main Camera", *_scene};
-    auto camera = new Camera;
 
-    o->addComponent(camera);
-    o->setParent(_scene->root());
-    _objects.push_back(o);
-    o = new SceneObject{"Directional Light", *_scene};
-    o->addComponent(new Light);
-    o->setParent(_scene->root());
-    _objects.push_back(o);
-    o = new SceneObject{"Box 1", *_scene};
-    o->addComponent(makePrimitive(_defaultMeshes.find("Box")));
-    o->setParent(_scene->root());
-    _objects.push_back(o);
-    Camera::setCurrent(camera);
-  }
-  // **End initialization of temporary attributes
+    if (index == 1) {
+        _current = _scene = new Scene{ "Room" };
+        _editor = new SceneEditor{ *_scene };
+        _editor->setDefaultView((float)width() / (float)height());
+
+        //makes room
+        SceneObject* room = new SceneObject("Room", _scene);
+
+        SceneObject* floor = new SceneObject("Floor", room);
+        floor->addComponent(makePrimitive(_defaultMeshes.find("Box")));
+        Primitive* prim = dynamic_cast<Primitive*>(floor->getComponent("Primitive"));
+        prim->material.diffuse = Color::darkGray;
+        prim->material.spot = Color::white;
+        floor->transform()->setLocalPosition(vec3f(0, -1.3, 0));
+        floor->transform()->setLocalScale(vec3f(4, 0.2, 4));
+
+        SceneObject* wall1 = new SceneObject("Wall 1", room);
+        wall1->addComponent(makePrimitive(_defaultMeshes.find("Box")));
+        prim = dynamic_cast<Primitive*>(wall1->getComponent("Primitive"));
+        prim->material.diffuse = Color::white;
+        prim->material.spot = Color::blue;
+        wall1->transform()->setLocalPosition(vec3f(-3.9, 2.6, 0));
+        wall1->transform()->setLocalScale(vec3f(0.2, 4, 4));
+
+        SceneObject* wall2 = new SceneObject("Wall 2", room);
+        wall2->addComponent(makePrimitive(_defaultMeshes.find("Box")));
+        prim = dynamic_cast<Primitive*>(wall2->getComponent("Primitive"));
+        prim->material.diffuse = Color::white;
+        prim->material.spot = Color::red;
+        prim->material.shine = 2;
+        wall2->transform()->setLocalPosition(vec3f(0, 2.6, -4));
+        wall2->transform()->setLocalScale(vec3f(4, 4, 0.2));
+
+
+        //place ball, camera and lights
+        SceneObject* rootObject1 = new SceneObject("Object 1", _scene);
+        rootObject1->addComponent(makePrimitive(_defaultMeshes.find("Sphere")));
+        prim = dynamic_cast<Primitive*>(rootObject1->getComponent("Primitive"));
+        prim->material.diffuse = Color::red;
+        prim->material.spot = Color::white;
+
+        SceneObject* mainCamera = new SceneObject("Main Camera", _scene);
+        mainCamera->addComponent(new Camera);
+        mainCamera->transform()->setLocalPosition(vec3f(0, 2, 4));
+        mainCamera->transform()->setLocalEulerAngles(vec3f(-27, 0, 0));
+
+        SceneObject* pointLight = new SceneObject("Point Light", _scene);
+        Light* light = new Light();
+        light->setType(Light::Point);
+        light->setFalloff(0.5);
+        pointLight->addComponent(light);
+        pointLight->transform()->setLocalPosition(vec3f(1, 2.7, 4.4));
+        pointLight->transform()->setLocalEulerAngles(vec3f(-150, 0, 0));
+        _current = mainCamera;
+    }
+    else if (index == 2) {
+        _current = _scene = new Scene{ "Balls" };
+        _editor = new SceneEditor{ *_scene };
+        _editor->setDefaultView((float)width() / (float)height());
+
+        SceneObject* ball1 = new SceneObject("Ball 1", _scene);
+        ball1->transform()->setLocalPosition(vec3f(-1, 0, -1));
+        ball1->addComponent(makePrimitive(_defaultMeshes.find("Sphere")));
+        Primitive* prim = dynamic_cast<Primitive*>(ball1->getComponent("Primitive"));
+        prim->material.diffuse = Color::red;
+        prim->material.spot = Color::white;
+
+        SceneObject* ball2 = new SceneObject("Ball 2", _scene);
+        ball2->transform()->setLocalPosition(vec3f(2, 0, 0));
+        ball2->addComponent(makePrimitive(_defaultMeshes.find("Sphere")));
+        prim = dynamic_cast<Primitive*>(ball2->getComponent("Primitive"));
+        prim->material.diffuse = Color::green;
+        prim->material.spot = Color::white;
+
+        SceneObject* ball3 = new SceneObject("Ball 3", _scene);
+        ball3->transform()->setLocalPosition(vec3f(0, 0, 2));
+        ball3->addComponent(makePrimitive(_defaultMeshes.find("Sphere")));
+        prim = dynamic_cast<Primitive*>(ball3->getComponent("Primitive"));
+        prim->material.diffuse = Color::blue;
+        prim->material.spot = Color::white;
+
+        SceneObject* mainCamera = new SceneObject("Main Camera", _scene);
+        mainCamera->addComponent(new Camera);
+        mainCamera->transform()->setLocalPosition(vec3f(0, 2, 4));
+        mainCamera->transform()->setLocalEulerAngles(vec3f(-27, 0, 0));
+
+        SceneObject* pointLight = new SceneObject("Point Light", _scene);
+        Light* light = new Light();
+        light->setType(Light::Point);
+        pointLight->addComponent(light);
+        pointLight->transform()->setLocalPosition(vec3f(0, 2.7, 4.4));
+        pointLight->transform()->setLocalEulerAngles(vec3f(-150, 0, 0));
+        _current = mainCamera;
+    }
+    else if (index == 3) {
+        _current = _scene = new Scene{ "Scene 3" };
+        _editor = new SceneEditor{ *_scene };
+        _editor->setDefaultView((float)width() / (float)height());
+
+        SceneObject* rootObject1 = new SceneObject("Object 1", _scene);
+        rootObject1->addComponent(makePrimitive(_defaultMeshes.find("Sphere")));
+        Primitive* prim = dynamic_cast<Primitive*>(rootObject1->getComponent("Primitive"));
+        prim->material.diffuse = Color::red;
+        prim->material.spot = Color::white;
+
+        SceneObject* mainCamera = new SceneObject("Main Camera", _scene);
+        mainCamera->addComponent(new Camera);
+        mainCamera->transform()->setLocalPosition(vec3f(0, 2, 4));
+        mainCamera->transform()->setLocalEulerAngles(vec3f(-27, 0, 0));
+
+        SceneObject* pointLight = new SceneObject("Point Light", _scene);
+        Light* light = new Light();
+        light->setType(Light::Point);
+        pointLight->addComponent(light);
+        pointLight->transform()->setLocalPosition(vec3f(0, 2.7, 4.4));
+        pointLight->transform()->setLocalEulerAngles(vec3f(-150, 0, 0));
+        _current = mainCamera;
+    }
 }
 
 void
 P4::initialize()
 {
-  Application::loadShaders(_program, "shaders/P4.vs", "shaders/P4.fs");
+  Application::loadShaders(_program, "shaders/gouraud.vs", "shaders/P4.fs");
   Assets::initialize();
   buildDefaultMeshes();
-  buildScene();
+  buildScene(1);
   _renderer = new GLRenderer{*_scene};
   _rayTracer = new RayTracer{*_scene};
   glEnable(GL_DEPTH_TEST);
@@ -97,6 +193,45 @@ P4::initialize()
   glPolygonOffset(1.0f, 1.0f);
   glEnable(GL_LINE_SMOOTH);
   _program.use();
+
+  _ambientLightLoc = _program.uniformLocation("ambientLight");
+  _NLLoc = _program.uniformLocation("NL");
+
+  for (int i = 0; i < 10; i++)
+  {
+      char str[40];
+      sprintf_s(str, "lights[%d].", i);
+      char attribute[40];
+      strcpy_s(attribute, str);
+      strcat_s(attribute, "type");
+      _lightLocs[i]._typeLoc = _program.uniformLocation(attribute);
+      strcpy_s(attribute, str);
+      strcat_s(attribute, "color");
+      _lightLocs[i]._colorLoc = _program.uniformLocation(attribute);
+      strcpy_s(attribute, str);
+      strcat_s(attribute, "position");
+      _lightLocs[i]._positionLoc = _program.uniformLocation(attribute);
+      strcpy_s(attribute, str);
+      strcat_s(attribute, "direction");
+      _lightLocs[i]._directionLoc = _program.uniformLocation(attribute);
+      strcpy_s(attribute, str);
+      strcat_s(attribute, "falloff");
+      _lightLocs[i]._falloffLoc = _program.uniformLocation(attribute);
+      strcpy_s(attribute, str);
+      strcat_s(attribute, "spotlightAngleRadians");
+      _lightLocs[i]._spotlightAngleRadiansLoc = _program.uniformLocation(attribute);
+  }
+
+  _OaLoc = _program.uniformLocation("material.Oa");
+  _OdLoc = _program.uniformLocation("material.Od");
+  _OsLoc = _program.uniformLocation("material.Os");
+  _nsLoc = _program.uniformLocation("material.s");
+
+  _transformLoc = _program.uniformLocation("transform");
+  _normalMatrixLoc = _program.uniformLocation("normalMatrix");
+
+  _vpMatrixLoc = _program.uniformLocation("vpMatrix");
+  _cameraPositionLoc = _program.uniformLocation("cameraPosition");
 }
 
 inline void
@@ -107,48 +242,77 @@ P4::hierarchyWindow()
     ImGui::OpenPopup("CreateObjectPopup");
   if (ImGui::BeginPopup("CreateObjectPopup"))
   {
+    int count = _current->getChildCount() + 1;
     if (ImGui::MenuItem("Empty Object"))
     {
-      // TODO: create an empty object.
+        char name[30];
+        sprintf_s(name, "Object %d", count);
+        SceneObject* newObject = new SceneObject(name, _scene);
+        newObject->setParent(dynamic_cast<SceneObject*>(_current));
     }
     if (ImGui::BeginMenu("3D Object"))
     {
       if (ImGui::MenuItem("Box"))
       {
-        // TODO: create a new box.
+          char name[30];
+          sprintf_s(name, "Box %d", count);
+          SceneObject* newObject = new SceneObject(name, _scene);
+          newObject->setParent(dynamic_cast<SceneObject*>(_current));
+          newObject->addComponent(makePrimitive(_defaultMeshes.find("Box")));
       }
       if (ImGui::MenuItem("Sphere"))
       {
-        // TODO: create a new sphere.
+          char name[30];
+          sprintf_s(name, "Sphere %d", count);
+          SceneObject* newObject = new SceneObject(name, _scene);
+          newObject->setParent(dynamic_cast<SceneObject*>(_current));
+          newObject->addComponent(makePrimitive(_defaultMeshes.find("Sphere")));
       }
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Light"))
     {
-      if (ImGui::MenuItem("Directional Light"))
-      {
-        // TODO: create a new directional light.
-      }
-      if (ImGui::MenuItem("Point Light"))
-      {
-        // TODO: create a new pontual light.
-      }
-      if (ImGui::MenuItem("Spotlight"))
-      {
-        // TODO: create a new spotlight.
-      }
+        if (ImGui::MenuItem("Directional Light"))
+        {
+            char name[30];
+            sprintf_s(name, "Light %d", count);
+            SceneObject* newObject = new SceneObject(name, _scene);
+            newObject->setParent(dynamic_cast<SceneObject*>(_current));
+            new Light(newObject);
+
+        }
+        if (ImGui::MenuItem("Point Light"))
+        {
+            char name[30];
+            sprintf_s(name, "Light %d", count);
+            SceneObject* newObject = new SceneObject(name, _scene);
+            newObject->setParent(dynamic_cast<SceneObject*>(_current));
+            Light* light = new Light(newObject);
+            light->setType(Light::Point);
+        }
+        if (ImGui::MenuItem("Spotlight"))
+        {
+            char name[30];
+            sprintf_s(name, "Light %d", count);
+            SceneObject* newObject = new SceneObject(name, _scene);
+            newObject->setParent(dynamic_cast<SceneObject*>(_current));
+            Light* light = new Light(newObject);
+            light->setType(Light::Spot);
+        }
       ImGui::EndMenu();
     }
     if (ImGui::MenuItem("Camera"))
     {
-      // TODO: create a new camera.
+        char name[30];
+        sprintf_s(name, "Camera %d", count);
+        SceneObject* newObject = new SceneObject(name, _scene);
+        newObject->setParent(dynamic_cast<SceneObject*>(_current));
+        new Camera(newObject);
     }
     ImGui::EndPopup();
   }
   ImGui::Separator();
 
-  // **Begin hierarchy of temporary scene objects
-  // It should be replaced by your hierarchy
   auto f = ImGuiTreeNodeFlags_OpenOnArrow;
   auto open = ImGui::TreeNodeEx(_scene,
     _current == _scene ? f | ImGuiTreeNodeFlags_Selected : f,
@@ -156,22 +320,69 @@ P4::hierarchyWindow()
 
   if (ImGui::IsItemClicked())
     _current = _scene;
+  if (ImGui::BeginDragDropTarget()) {
+      if (auto payload = ImGui::AcceptDragDropPayload("SceneObject")) {
+          SceneObject** payloadObj = (SceneObject**)payload->Data;
+          if (payloadObj)
+              (*payloadObj)->setParent(nullptr);
+      }
+      ImGui::EndDragDropTarget();
+  }
+
   if (open)
   {
-    for (const auto& o : _objects)
-    {
-      auto f = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+      openNodeHyerarchy(_scene);
+  }
+  ImGui::End();
+}
 
-      ImGui::TreeNodeEx(o,
-        _current == o ? f | ImGuiTreeNodeFlags_Selected : f,
-        o->name());
-      if (ImGui::IsItemClicked())
-        _current = o;
+void P4::openNodeHyerarchy(SceneNode* node) {
+    if (!node) {
+        return;
+    }
+    SceneObjectListIterator* it = node->objectIterator();
+    SceneObject* object = it->start();
+
+    if (object == _scene->root())
+        object = it->next();
+
+    int count = 0;
+    while (object) {
+        ImGuiTreeNodeFlags flag{ object->getChildCount() != 0 ? ImGuiTreeNodeFlags_OpenOnArrow : ImGuiTreeNodeFlags_Leaf };
+        ImGui::PushID(object);
+        auto open = ImGui::TreeNodeEx(object, _current == object ? flag | ImGuiTreeNodeFlags_Selected : flag, object->name());
+        count++;
+        if (ImGui::IsItemClicked())
+            _current = object;
+
+        //begin parent change
+        if (ImGui::BeginDragDropSource()) {
+
+            ImGui::SetDragDropPayload("SceneObject", &object, sizeof(SceneObject*));
+            ImGui::EndDragDropSource();
+        }
+
+        if (ImGui::BeginDragDropTarget()) {
+            if (auto payload = ImGui::AcceptDragDropPayload("SceneObject")) {
+                SceneObject** payloadObj = (SceneObject**)payload->Data;
+                if (payloadObj)
+                    (*payloadObj)->setParent(object);
+            }
+            ImGui::EndDragDropTarget();
+        }
+
+        if (open) {
+            openNodeHyerarchy(object);
+        }
+        //ImGui::TreePop();
+        object = it->next();
+    }
+
+    while (count > 0) {
+        ImGui::TreePop();
+        count--;
     }
     ImGui::TreePop();
-  }
-  // **End hierarchy of temporary scene objects
-  ImGui::End();
 }
 
 namespace ImGui
@@ -287,11 +498,11 @@ P4::inspectMaterial(Material& material)
 inline void
 P4::inspectPrimitive(Primitive& primitive)
 {
-  //const auto flag = ImGuiTreeNodeFlags_NoTreePushOnOpen;
+  const auto flag = ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-  //if (ImGui::TreeNodeEx("Shape", flag))
+  if (ImGui::TreeNodeEx("Shape", flag))
     inspectShape(primitive);
-  //if (ImGui::TreeNodeEx("Material", flag))
+  if (ImGui::TreeNodeEx("Material", flag))
     inspectMaterial(primitive.material);
 }
 
@@ -316,6 +527,40 @@ P4::inspectLight(Light& light)
   }
   light.setType(lt);
   ImGui::ColorEdit3("Color", light.color);
+
+  if (lt == 0) {
+      //directional light
+      vec3f dir = light.getLocalEulerAngles();
+      if (ImGui::DragVec3("Light Rotation", dir))
+          light.setLocalEulerAngles(dir);
+  }
+  else if (lt == 1) {
+      //point light
+      float falloff = light.getFalloff();
+      if (ImGui::DragFloat("Falloff Factor", &falloff, 0.0025f, 0.0f, 2.0f, "%.2f", 1.0f))
+      {
+          light.setFalloff(falloff);
+      }
+  }
+  else if (lt == 2) {
+      //spot light
+      vec3f dir = light.getLocalEulerAngles();
+      if (ImGui::DragVec3("Light Rotation", dir))
+          light.setLocalEulerAngles(dir);
+      float falloff = light.getFalloff();
+      if (ImGui::DragFloat("Falloff Factor", &falloff, 0.0025f, 0.0f, 2.0f, "%.2f", 1.0f))
+      {
+          light.setFalloff(falloff);
+      }
+      float radialFalloff = light.getRadialFalloff();
+      if (ImGui::DragFloat("Radial Falloff Factor", &radialFalloff, 0.0025f, 0.0f, 2.0f, "%.2f", 1.0f))
+      {
+          light.setRadialFalloff(radialFalloff);
+      }
+      float angle = light.getSpotlightAngle();
+      if (ImGui::DragFloat("Spotlight Angle", &angle, 0.1f, 0.0f, 90.0f, "%.1f", 1.0f))
+          light.setSpotlightAngle(angle);
+  }
 }
 
 void
@@ -393,15 +638,24 @@ P4::addComponentButton(SceneObject& object)
   {
     if (ImGui::MenuItem("Primitive"))
     {
-      // TODO
+        Primitive* primitive = makePrimitive(_defaultMeshes.find("Box"));
+        if (!object.addComponent(primitive)) {
+            delete primitive;
+        }
     }
     if (ImGui::MenuItem("Light"))
     {
-      // TODO
+        Light* light = new Light();
+        if (!object.addComponent(light)) {
+            delete light;
+        }
     }
     if (ImGui::MenuItem("Camera"))
     {
-      // TODO
+        Camera* camera = new Camera();
+        if (!object.addComponent(camera)) {
+            delete camera;
+        }
     }
     ImGui::EndPopup();
   }
@@ -420,53 +674,65 @@ P4::sceneObjectGui()
   ImGui::Separator();
   if (ImGui::CollapsingHeader(object->transform()->typeName()))
     ImGui::TransformEdit(object->transform());
-  // **Begin inspection of temporary components
-  // It should be replaced by your component inspection
-  auto component = object->component();
+  ComponentListIterator* componentIterator = object->componentIterator();
+  auto component = componentIterator->start();
 
-  if (auto p = dynamic_cast<Primitive*>(component))
-  {
-    auto notDelete{true};
-    auto open = ImGui::CollapsingHeader(p->typeName(), &notDelete);
+  while (component) {
 
-    if (!notDelete)
-    {
-      // TODO: delete primitive
-    }
-    else if (open)
-      inspectPrimitive(*p);
+      if (auto p = dynamic_cast<Primitive*>(component))
+      {
+          auto notDelete{ true };
+          auto open = ImGui::CollapsingHeader(p->typeName(), &notDelete);
+
+          if (!notDelete)
+          {
+              Component* tempComponent = componentIterator->next();
+              object->removeComponent(component);
+              component = tempComponent;
+              continue;
+          }
+          else if (open)
+              inspectPrimitive(*p);
+      }
+      else if (auto l = dynamic_cast<Light*>(component))
+      {
+          auto notDelete{ true };
+          auto open = ImGui::CollapsingHeader(l->typeName(), &notDelete);
+
+          if (!notDelete)
+          {
+              Component* tempComponent = componentIterator->next();
+              object->removeComponent(component);
+              component = tempComponent;
+              continue;
+          }
+          else if (open)
+              inspectLight(*l);
+      }
+      else if (auto c = dynamic_cast<Camera*>(component))
+      {
+          auto notDelete{ true };
+          auto open = ImGui::CollapsingHeader(c->typeName(), &notDelete);
+
+          if (!notDelete)
+          {
+              Component* tempComponent = componentIterator->next();
+              object->removeComponent(component);
+              component = tempComponent;
+              continue;
+          }
+          else if (open)
+          {
+              auto isCurrent = c == Camera::current();
+
+              ImGui::Checkbox("Current", &isCurrent);
+              Camera::setCurrent(isCurrent ? c : nullptr);
+              inspectCamera(*c);
+          }
+      }
+      component = componentIterator->next();
   }
-  else if (auto l = dynamic_cast<Light*>(component))
-  {
-    auto notDelete{true};
-    auto open = ImGui::CollapsingHeader(l->typeName(), &notDelete);
-
-    if (!notDelete)
-    {
-      // TODO: delete light
-    }
-    else if (open)
-      inspectLight(*l);
-  }
-  else if (auto c = dynamic_cast<Camera*>(component))
-  {
-    auto notDelete{true};
-    auto open = ImGui::CollapsingHeader(c->typeName(), &notDelete);
-
-    if (!notDelete)
-    {
-      // TODO: delete camera
-    }
-    else if (open)
-    {
-      auto isCurrent = c == Camera::current();
-
-      ImGui::Checkbox("Current", &isCurrent);
-      Camera::setCurrent(isCurrent ? c : nullptr);
-      inspectCamera(*c);
-    }
-  }
-  // **End inspection of temporary components
+  componentIterator->dispose();
 }
 
 inline void
@@ -580,7 +846,7 @@ P4::fileMenu()
   }
   ImGui::Separator();
   if (ImGui::MenuItem("Save", "Ctrl+S"))
-  {
+  { 
     // TODO
   }
   if (ImGui::MenuItem("Save As..."))
@@ -667,7 +933,28 @@ P4::mainMenu()
       }
       ImGui::EndMenu();
     }
+    if (ImGui::BeginMenu("Examples")) {
+        if (ImGui::BeginMenu("Load"))
+        {
+            if (ImGui::MenuItem("Room"))
+            {
+                buildScene(1);
+            }
+            if (ImGui::MenuItem("Balls"))
+            {
+                buildScene(2);
+            }
+            ImGui::Separator();
+            if (ImGui::MenuItem("Scene 3"))
+            {
+                buildScene(3);
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenu();
+    }
     ImGui::EndMainMenuBar();
+
   }
 }
 
@@ -702,44 +989,147 @@ P4::drawPrimitive(Primitive& primitive)
   auto t = primitive.transform();
   auto normalMatrix = mat3f{t->worldToLocalMatrix()}.transposed();
 
-  _program.setUniformMat4("transform", t->localToWorldMatrix());
-  _program.setUniformMat3("normalMatrix", normalMatrix);
-  _program.setUniformVec4("color", primitive.material.diffuse);
-  _program.setUniform("flatMode", (int)0);
+
+  _program.setUniformMat4(_transformLoc, t->localToWorldMatrix());
+  _program.setUniformMat3(_normalMatrixLoc, normalMatrix);
+  _program.setUniformVec4(_OaLoc, primitive.material.ambient);
+  _program.setUniformVec4(_OdLoc, primitive.material.diffuse);
+  _program.setUniformVec4(_OsLoc, primitive.material.spot);
+  _program.setUniform(_nsLoc, primitive.material.shine);
+
   m->bind();
   drawMesh(m, GL_FILL);
-  // **Begin BVH test
-  auto bvh = bvhMap[mesh];
 
-  if (bvh == nullptr)
-    bvhMap[mesh] = bvh = new BVH{*mesh, 16};
-  // **End BVH test
   if (primitive.sceneObject() != _current)
-    return;
-  //_program.setUniformVec4("color", _selectedWireframeColor);
-  //_program.setUniform("flatMode", (int)1);
-  //drawMesh(m, GL_LINE);
-  //_editor->setVectorColor(Color::white);
-  //_editor->drawNormals(*mesh, t->localToWorldMatrix(), normalMatrix);
-  //_editor->setLineColor(_selectedWireframeColor);
-  //_editor->drawBounds(mesh->bounds(), t->localToWorldMatrix());
-  bvh->iterate([this, t] (const BVHNodeInfo& node)
-  {
-    _editor->setLineColor(node.isLeaf ? Color::yellow : Color::magenta);
-    _editor->drawBounds(node.bounds, t->localToWorldMatrix());
-  });
+      return;
+  _program.setUniformVec4("wireframeColor", _selectedWireframeColor);
+  _program.setUniform("drawWireframe", true);
+
+  drawMesh(m, GL_LINE);
+
+  _program.setUniform("drawWireframe", false);
+  
+
+
+  //for drawing bvh on scene editor
+  /*
+  BVH* bvh = _rayTracer->getBVH(mesh);
+  if (bvh) {
+      bvh->iterate([this, t](const BVHNodeInfo& node)
+          {
+              _editor->setLineColor(node.isLeaf ? Color::yellow : Color::magenta);
+              _editor->drawBounds(node.bounds, t->localToWorldMatrix());
+          });
+  }
+  */
 }
 
 inline void
 P4::drawLight(Light& light)
 {
-  // TODO
+    auto lt = light.type();
+    _editor->setLineColor(light.color);
+    if (lt == 0) {
+        //Directional Light
+        _editor->drawVector(light.transform()->position(), light.getWorldDirection().normalize(), 3);
+    }
+    else if (lt == 1) {
+        //Point Light
+        //float radius = 5 - (light.getFalloff() * light.getFalloff()); //more beautiful
+        float radius = 10 / pow(3, light.getFalloff()); //more accurate
+        _editor->drawCircle(light.transform()->position(), radius, vec3f(1, 0, 0));
+        _editor->drawCircle(light.transform()->position(), radius, vec3f(0, 1, 0));
+        _editor->drawCircle(light.transform()->position(), radius, vec3f(0, 0, 1));
+    }
+    else if (lt == 2) {
+        //Spot Light
+        float coneHeight = 10 / pow(3, light.getFalloff());
+        _editor->drawVector(light.transform()->position(), light.getWorldDirection().normalize(), coneHeight);
+        vec3f coneCenter = light.transform()->position() + light.getWorldDirection() * coneHeight;
+        float radius = (coneCenter - light.transform()->position()).length() * tan(light.getSpotlightAngleRadians());
+        _editor->drawLine(light.transform()->position(), coneCenter);
+        _editor->drawCircle(coneCenter, radius, light.getWorldDirection());
+        _editor->drawLine(light.transform()->position(), coneCenter + light.getWorldDirection().up() * radius);
+        _editor->drawLine(light.transform()->position(), coneCenter - light.getWorldDirection().up() * radius);
+    }
 }
 
 inline void
 P4::drawCamera(Camera& camera)
 {
-  // TODO
+    _editor->setLineColor(_selectedWireframeColor);
+
+    const int toRadians = M_PI / 180;
+
+    mat4f inv = camera.cameraToWorldMatrix();
+
+
+    float z1 = -camera.F();
+    float x1 = camera.aspectRatio() * camera.height() * z1 / 2;
+    float y1 = camera.height() * z1 / 2;
+
+    float z2 = -camera.B();
+    float x2 = camera.aspectRatio() * camera.height() * z2 / 2;
+    float y2 = camera.height() * z2 / 2;
+
+    /*now we define 8 points, using the following pattern:
+    The first 4 points define the front clipping plane
+    The next 4 define the back clipping plane
+    For each plane we start from upper right corner and rotate clockwise
+    */
+    vec3f points[8];
+
+    //near face
+    points[0] = vec3f(x1, y1, z1);
+    points[1] = vec3f(-x1, y1, z1);
+    points[2] = vec3f(x1, -y1, z1);
+    points[3] = vec3f(-x1, -y1, z1);
+
+    //far face
+    points[4] = vec3f(x2, y2, z2);
+    points[5] = vec3f(-x2, y2, z2);
+    points[6] = vec3f(x2, -y2, z2);
+    points[7] = vec3f(-x2, -y2, z2);
+
+    /*
+    //and now we can draw the first plane
+    _editor->drawLine(points[0], points[1]);
+    _editor->drawLine(points[1], points[2]);
+    _editor->drawLine(points[2], points[3]);
+    _editor->drawLine(points[3], points[0]);
+
+    //and the second plane
+    _editor->drawLine(points[4], points[5]);
+    _editor->drawLine(points[5], points[6]);
+    _editor->drawLine(points[6], points[7]);
+    _editor->drawLine(points[7], points[4]);
+
+    //and finally we draw lines linking then
+    _editor->drawLine(points[0], points[4]);
+    _editor->drawLine(points[1], points[5]);
+    _editor->drawLine(points[2], points[6]);
+    _editor->drawLine(points[3], points[7]);
+    */
+}
+
+void
+P4::drawViewport(Camera& camera) {
+    //we prepare to render the preview
+    float aspectRatio = camera.aspectRatio();
+    int vpHeight = 220;
+    int x = 400, y = 30;
+    glViewport(x, y, vpHeight * camera.aspectRatio(), vpHeight);
+    glScissor(x, y, vpHeight * camera.aspectRatio(), vpHeight);
+    glEnable(GL_SCISSOR_TEST);
+    //render it
+    _viewMode = ViewMode::GL_Renderer;
+    renderScene();
+
+    //and then go back to rendering the editor camera view
+    _viewMode = ViewMode::Editor;
+    glDisable(GL_SCISSOR_TEST);
+    glViewport(0, 0, width(), height());
+    _program.use();
 }
 
 inline void
@@ -752,7 +1142,6 @@ P4::renderScene()
       _renderer->setCamera(camera);
       _renderer->setImageSize(width(), height());
       _renderer->render();
-      _program.use();
       return;
     }
     if (_image == nullptr)
@@ -774,57 +1163,107 @@ constexpr auto ZOOM_SCALE = 1.01f;
 void
 P4::render()
 {
-  if (_viewMode != ViewMode::Editor)
-  {
-    renderScene();
-    return;
-  }
-  if (_moveFlags)
-  {
-    const auto delta = _editor->orbitDistance() * CAMERA_RES;
-    auto d = vec3f::null();
-
-    if (_moveFlags.isSet(MoveBits::Forward))
-      d.z -= delta;
-    if (_moveFlags.isSet(MoveBits::Back))
-      d.z += delta;
-    if (_moveFlags.isSet(MoveBits::Left))
-      d.x -= delta;
-    if (_moveFlags.isSet(MoveBits::Right))
-      d.x += delta;
-    if (_moveFlags.isSet(MoveBits::Up))
-      d.y += delta;
-    if (_moveFlags.isSet(MoveBits::Down))
-      d.y -= delta;
-    _editor->pan(d);
-  }
-  _editor->newFrame();
-
-  // **Begin rendering of temporary scene objects
-  // It should be replaced by your rendering code (and moved to scene editor?)
-  auto ec = _editor->camera();
-  const auto& p = ec->transform()->position();
-  auto vp = vpMatrix(ec);
-
-  _program.setUniformMat4("vpMatrix", vp);
-  _program.setUniformVec4("ambientLight", _scene->ambientLight);
-  _program.setUniformVec3("lightPosition", p);
-  for (const auto& o : _objects)
-  {
-    if (!o->visible)
-      continue;
-
-    auto component = o->component();
-
-    if (auto p = dynamic_cast<Primitive*>(component))
-      drawPrimitive(*p);
-    if (o == _current)
+    _program.use();
+    if (_viewMode != ViewMode::Editor)
     {
-      auto t = o->transform();
-      _editor->drawAxes(t->position(), mat3f{t->rotation()});
+        renderScene();
+        return;
     }
-  }
-  // **End rendering of temporary scene objects
+    if (_moveFlags)
+    {
+        const auto delta = _editor->orbitDistance() * CAMERA_RES;
+        auto d = vec3f::null();
+
+        if (_moveFlags.isSet(MoveBits::Forward))
+            d.z -= delta;
+        if (_moveFlags.isSet(MoveBits::Back))
+            d.z += delta;
+        if (_moveFlags.isSet(MoveBits::Left))
+            d.x -= delta;
+        if (_moveFlags.isSet(MoveBits::Right))
+            d.x += delta;
+        if (_moveFlags.isSet(MoveBits::Up))
+            d.y += delta;
+        if (_moveFlags.isSet(MoveBits::Down))
+            d.y -= delta;
+        _editor->pan(d);
+    }
+    _editor->newFrame();
+
+    auto ec = _editor->camera();
+    const auto& p = ec->transform()->position();
+    auto vp = vpMatrix(ec);
+
+    getLights();
+    _program.setUniformMat4(_vpMatrixLoc, vp);
+    _program.setUniformVec4(_ambientLightLoc, _scene->ambientLight);
+    _program.setUniformVec3(_cameraPositionLoc, p);
+
+    //set lights
+    _program.setUniform(_NLLoc, _lightCount);
+    for (int i = 0; i < _lightCount; i++) {
+        _program.setUniform(_lightLocs[i]._typeLoc, _lightProps[i]._type);
+        _program.setUniformVec4(_lightLocs[i]._colorLoc, _lightProps[i]._color);
+        _program.setUniformVec3(_lightLocs[i]._positionLoc, _lightProps[i]._position);
+        _program.setUniformVec3(_lightLocs[i]._directionLoc, _lightProps[i]._direction);
+        _program.setUniform(_lightLocs[i]._falloffLoc, _lightProps[i]._falloff);
+        _program.setUniform(_lightLocs[i]._spotlightAngleRadiansLoc, _lightProps[i]._spotLightAngleRadians);
+        _program.setUniform(_lightLocs[i]._radialFalloffLoc, _lightProps[i]._radialFalloff);
+    }
+
+    //render objects
+    SceneObjectListIterator* objectIterator = _scene->objectIterator();
+    //first object is root, so we can skip it
+    objectIterator->start();
+    SceneObject* currentObject = objectIterator->next();
+    //call a recursive render function for each object and render it
+    while (currentObject) {
+        recursiveRender(currentObject);
+
+        currentObject = objectIterator->next();
+    }
+    objectIterator->dispose();
+
+    if (_viewMode == ViewMode::Editor)
+    {
+        SceneObject* currentObj = dynamic_cast<SceneObject*>(_current);
+        if (currentObj) {
+
+            //draw axis over this object
+            auto t = currentObj->transform();
+            _editor->drawAxes(t->position(), mat3f{ t->rotation() });
+
+            //draw light component
+            Light* light = dynamic_cast<Light*>(currentObj->getComponent("Light"));
+            if (light)
+                drawLight(*light);
+
+            //draw camera component
+            Camera* camera = dynamic_cast<Camera*>(currentObj->getComponent("Camera"));
+            if (camera) {
+                drawViewport(*camera);
+                camera->setCurrent(camera);
+                drawCamera(*camera);
+            }
+        }
+    }
+}
+
+void
+P4::recursiveRender(SceneObject* object) {
+    //render this object's primitive
+    Primitive* primitive = dynamic_cast<Primitive*>(object->getComponent("Primitive"));
+    if (primitive && object->visible) {
+        drawPrimitive(*primitive);
+    }
+    //render its children
+    SceneObjectListIterator* it = object->objectIterator();
+    SceneObject* newObj = it->start();
+    while (newObj) {
+        recursiveRender(newObj);
+        newObj = it->next();
+    }
+    it->dispose();
 }
 
 bool
@@ -839,30 +1278,62 @@ P4::windowResizeEvent(int width, int height)
 bool
 P4::keyInputEvent(int key, int action, int mods)
 {
-  auto active = action != GLFW_RELEASE && mods == GLFW_MOD_ALT;
+    auto active = action != GLFW_RELEASE && mods == GLFW_MOD_ALT;
 
-  switch (key)
-  {
+    switch (key)
+    {
     case GLFW_KEY_W:
-      _moveFlags.enable(MoveBits::Forward, active);
-      break;
+        _moveFlags.enable(MoveBits::Forward, active);
+        break;
     case GLFW_KEY_S:
-      _moveFlags.enable(MoveBits::Back, active);
-      break;
+        _moveFlags.enable(MoveBits::Back, active);
+        break;
     case GLFW_KEY_A:
-      _moveFlags.enable(MoveBits::Left, active);
-      break;
+        _moveFlags.enable(MoveBits::Left, active);
+        break;
     case GLFW_KEY_D:
-      _moveFlags.enable(MoveBits::Right, active);
-      break;
+        _moveFlags.enable(MoveBits::Right, active);
+        break;
     case GLFW_KEY_Q:
-      _moveFlags.enable(MoveBits::Up, active);
-      break;
+        _moveFlags.enable(MoveBits::Up, active);
+        break;
     case GLFW_KEY_Z:
-      _moveFlags.enable(MoveBits::Down, active);
-      break;
-  }
-  return false;
+        _moveFlags.enable(MoveBits::Down, active);
+        break;
+    case GLFW_KEY_DELETE:
+        deleteCurrentObject();
+        break;
+    case GLFW_KEY_F:
+        if (isKeyPressed(GLFW_KEY_LEFT_ALT)) {
+            SceneObject* object = dynamic_cast<SceneObject*>(_current);
+            if (object)
+                _editor->requestFocus(object->transform()->position());
+        }
+        break;
+    }
+    return false;
+}
+
+void
+P4::deleteCurrentObject() {
+    SceneObject* sceneObject = dynamic_cast<SceneObject*>(_current);
+    if (sceneObject && sceneObject != _scene->root()) {
+        Camera* camera = dynamic_cast<Camera*>(sceneObject->getComponent("Camera"));
+        if (camera) {
+            if (camera->current) {
+                _viewMode = ViewMode::Editor;
+            }
+        }
+
+        if (sceneObject->parent()) {
+            sceneObject->parent()->removeChildSceneObject(sceneObject);
+        }
+        else {
+            sceneObject->scene()->removeChildSceneObject(sceneObject);
+        }
+        _current = _scene;
+        return;
+    }
 }
 
 bool
@@ -883,6 +1354,7 @@ P4::mouseButtonInputEvent(int button, int actions, int mods)
 
   auto active = actions == GLFW_PRESS;
 
+  /*
   if (button == GLFW_MOUSE_BUTTON_LEFT)
   {
     if (active)
@@ -912,7 +1384,7 @@ P4::mouseButtonInputEvent(int button, int actions, int mods)
       // **End picking of temporary scene objects
     }
     return true;
-  }
+  }*/
   if (button == GLFW_MOUSE_BUTTON_RIGHT)
     _dragFlags.enable(DragBits::Rotate, active);
   else if (button == GLFW_MOUSE_BUTTON_MIDDLE)

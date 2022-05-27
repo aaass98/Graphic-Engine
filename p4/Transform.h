@@ -53,6 +53,8 @@ public:
     World
   };
 
+  Transform(SceneObject* sceneObject);
+
   bool changed{false};
 
   /// Constructs an identity transform.

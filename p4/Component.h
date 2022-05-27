@@ -50,6 +50,9 @@ class Transform;
 class Component: public SharedObject
 {
 public:
+  //creates a component atached to a Scene Object
+  Component(const char* const typeName, SceneObject* sceneObject); // implemented in ComponentList.cpp
+
   /// Returns the type name of this component.
   auto typeName() const
   {
@@ -66,18 +69,23 @@ public:
   Transform* transform(); // implemented in SceneObject.h
 
 protected:
-  Component(const char* const typeName):
-    _typeName{typeName}
-  {
-    // do nothing
-  }
+    Component(const char* const typeName) :
+        _next{ nullptr },
+        _previous{ nullptr },
+        _typeName{ typeName }
+    {
+        makeUse(this);
+    }
 
 private:
   const char* const _typeName;
   SceneObject* _sceneObject{};
+  Component* _next;
+  Component* _previous;
 
   friend class SceneObject;
-
+  friend class ComponentList;
+  friend class ComponentListIterator;
 }; // Component
 
 } // end namespace cg

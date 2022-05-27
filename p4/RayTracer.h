@@ -36,6 +36,8 @@
 #include "graphics/Image.h"
 #include "Intersection.h"
 #include "Renderer.h"
+#include "BVH.h"
+#include <map>
 
 namespace cg
 { // begin namespace cg
@@ -50,9 +52,15 @@ namespace cg
 // =========
 class RayTracer: public Renderer
 {
+using BVHRef = Reference<BVH>;
+using BVHMap = std::map<TriangleMesh*, BVHRef>;
+
 public:
   // Constructor
   RayTracer(Scene&, Camera* = 0);
+
+  BVH* getBVH(SceneObject* obj); //those are used for debbuging
+  BVH* getBVH(TriangleMesh* mesh); 
 
   auto maxRecursionLevel() const
   {
@@ -100,10 +108,13 @@ private:
   void setPixelRay(float x, float y);
   Color shoot(float x, float y);
   bool intersect(const Ray&, Intersection&);
+  void recursiveIntersect(const Ray&, Intersection&, SceneNode*);
+  bool intersectBVH(const Ray& ray, BVH* bvh);
   Color trace(const Ray& ray, uint32_t level, float weight);
   Color shade(const Ray&, Intersection&, int, float);
   bool shadow(const Ray&);
   Color background() const;
+  BVHMap bvhMap;
 
   vec3f imageToWindow(float x, float y) const
   {

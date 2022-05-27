@@ -34,6 +34,7 @@
 #define __SceneNode_h
 
 #include "core/NameableObject.h"
+#include "SceneObjectList.h"
 
 namespace cg
 { // begin namespace cg
@@ -43,24 +44,61 @@ namespace cg
 //
 // SceneNode: generic scene node class
 // =========
-class SceneNode: public NameableObject
-{
-public:
-  using NameableObject::NameableObject;
+    class SceneNode : public NameableObject
+    {
+    public:
+        using NameableObject::NameableObject;
 
-  template <typename T>
-  T* as()
-  {
-    return dynamic_cast<T*>(this);
-  }
+        /// Adds a new child SceneObject
+        inline void addChildSceneObject(SceneObject* child) {
+            _childs->add(child);
+        }
 
-  template <typename T>
-  const T* as() const
-  {
-    return dynamic_cast<const T*>(this);
-  }
+        /// removes a child SceneObject
+        inline void removeChildSceneObject(SceneObject* child) {
+            _childs->remove(child);
+        }
 
-}; // SceneNode
+        //returns a iterator over the child object list
+        SceneObjectListIterator* objectIterator() {
+            return new SceneObjectListIterator(_childs);
+        }
+
+        inline int getChildCount() {
+            return _childs->getCount();
+        }
+
+        template <typename T>
+        T* as()
+        {
+            return dynamic_cast<T*>(this);
+        }
+
+        template <typename T>
+        const T* as() const
+        {
+            return dynamic_cast<const T*>(this);
+        }
+
+    protected:
+        SceneObjectList* _childs;
+
+        SceneNode() : NameableObject{ "New Scene" } {
+
+            _childs = new SceneObjectList(this);
+        }
+
+        SceneNode(const char* name) :
+            NameableObject{ name }
+        {
+            _childs = new SceneObjectList(this);
+        }
+
+        ~SceneNode() {
+            delete _childs;
+        }
+
+    }; // SceneNode
 
 } // end namespace cg
 

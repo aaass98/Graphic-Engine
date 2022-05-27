@@ -75,6 +75,8 @@ public:
   void rotateView(float ax, float ay);
   void orbit(float ax, float ay);
   void pan(const vec3f& d);
+  void requestFocus(vec3f objectPosition);
+  void DrawViewPort(Camera camera);
 
   void pan(float dx, float dy, float dz)
   {

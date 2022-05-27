@@ -9,6 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{c50c09be-ea1c-43cd-8617-1c62dd9e82d7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Main.cpp">
@@ -45,6 +48,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\BVH.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ComponentList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SceneObjectList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -100,5 +109,28 @@
     <ClInclude Include="..\..\BVH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\ComponentList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SceneObjectList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\assets\shaders\gouraud.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\assets\shaders\p4.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\assets\shaders\p4.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\assets\shaders\phong.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\assets\shaders\phong.vs">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

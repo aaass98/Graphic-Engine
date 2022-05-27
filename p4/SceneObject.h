@@ -35,6 +35,7 @@
 
 #include "SceneNode.h"
 #include "Transform.h"
+#include "ComponentList.h"
 
 namespace cg
 { // begin namespace cg
@@ -53,13 +54,13 @@ public:
   bool visible{true};
 
   /// Constructs an empty scene object.
-  SceneObject(const char* name, Scene& scene):
-    SceneNode{name},
-    _scene{&scene},
-    _parent{}
-  {
-    addComponent(makeUse(&_transform));    
-  }
+  SceneObject(const char* name, Scene* scene);
+
+  SceneObject(const char* name, SceneObject* sceneObject);
+
+  SceneObject(const char* name, Scene& scene);
+
+  ~SceneObject();
 
   /// Returns the scene which this scene object belong to.
   auto scene() const
@@ -84,34 +85,47 @@ public:
 
   auto transform()
   {
-    return &_transform;
+    return _transform;
   }
 
-  void addComponent(Component* component)
-  {
-    component->_sceneObject = this;
-    // TODO
-    _component = Component::makeUse(component); // temporary
+  /// Add a new component to this object's list.
+  bool addComponent(Component* component) {
+      if (_components->getComponent(component->typeName()) == nullptr) {
+          _components->add(component);
+          component->_sceneObject = this;
+          return true;
+      }
+      else {
+          return false;
+      }
   }
 
-  // **Begin temporary methods
-  // They should be replace by your child and component iterators
-  Component* component()
-  {
-    return _component;
+  inline Component* getComponent(const char* typeName) {
+      return _components->getComponent(typeName);
   }
-  // **End temporary methods
+
+  /// Remove a component from this object's list.
+  inline void removeComponent(Component* component) {
+      _components->remove(component);
+  }
+
+  //returns a iterator over the child object list
+  ComponentListIterator* componentIterator() {
+      return new ComponentListIterator(_components);
+  }
 
 private:
   Scene* _scene;
   SceneObject* _parent;
-  Transform _transform;
-  // **Begin temporary attributes
-  // They should be replace by your child and component collections
-  Reference<Component> _component;
-  // **End temporary attributes
+  Transform* _transform;
+  SceneObject* _previous;
+  SceneObject* _next;
+  ComponentList* _components;
 
   friend class Scene;
+  friend class SceneObjectList;
+  friend class SceneObjectListIterator;
+  friend class ComponentList;
 
 }; // SceneObject
 

@@ -86,6 +86,26 @@ SceneEditor::pan(const vec3f& d)
 }
 
 void
+SceneEditor::requestFocus(vec3f objectPosition) {
+    ////Make editor camera face object
+    //we start by finding the distance beetwen the editor and the object
+    Transform* t = _camera->transform();
+    vec3f distanceVector = objectPosition - t->position();
+    distanceVector = distanceVector.normalize();
+
+    //now with some simple trigonometry we rotate on x and y axis
+    vec3f targetRotation = t->localEulerAngles();
+    targetRotation.x = asin(distanceVector.y) * 180 / M_PI;
+    targetRotation.y = asin(-distanceVector.x) * 180 / M_PI;
+
+    t->setLocalEulerAngles(targetRotation);
+
+    //Move camera along z axis through some distance
+    vec3f targetPosition = objectPosition + 10 * t->forward();
+    _camera->transform()->setLocalPosition(targetPosition);
+}
+
+void
 SceneEditor::newFrame()
 {
   const auto& bc = _scene->backgroundColor;

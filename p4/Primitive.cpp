@@ -35,9 +35,57 @@
 
 namespace cg
 { // begin namespace cg
+bool intersectTriangle(const Ray& ray, const vec3f& v0, const vec3f& v1, const vec3f& v2, float& distance, float& b1, float& b2) 
+{
+    //calculate b1 and b2
+    auto e1 = v1 - v0;
+    auto e2 = v2 - v0;
+    auto s1 = ray.direction.cross(e2);
+
+    auto s1e1 = s1.dot(e1);
+    if (s1e1==0)
+        return false;
+
+    auto s = ray.origin - v0;
+    auto s2 = s.cross(e1);
+    distance = s2.dot(e2) / s1e1;
+    if (distance < 0)
+        return false;
+
+    b1 = s1.dot(s) / s1e1;
+
+    b2 = s2.dot(ray.direction) / s1e1;
+    if (b2 < 0 || b1 < 0 || b1 + b2 >1)
+        return false;
+
+    return true;
+}
+
+bool intersectMesh(const Ray& ray, const TriangleMesh& mesh, Intersection& hit) {
+    auto& data = mesh.data();
+    bool isHitting = false;
+
+    hit.distance = ray.tMax;//math::Limits<float>::inf();
+    for (int i = 0; i < data.numberOfTriangles; i++) {
+        auto n = data.triangles + i;
+        const auto& v0 = data.vertices[n->v[0]];
+        const auto& v1 = data.vertices[n->v[1]];
+        const auto& v2 = data.vertices[n->v[2]];
+        float d, b1, b2;
+
+        if (intersectTriangle(ray, v0, v1, v2, d, b1, b2) && d < hit.distance) {
+            isHitting = true;
+            hit.triangleIndex = i;
+            hit.distance = d;
+            hit.p = { 1 - b1 - b2, b1, b2 };
+        }
+    }
+    return isHitting;
+}
+
 
 bool
-Primitive::intersect(const Ray& ray, float& distance) const
+Primitive::intersect(const Ray& ray, Intersection& hit) const
 {
   if (_mesh == nullptr)
     return false;
@@ -49,21 +97,25 @@ Primitive::intersect(const Ray& ray, float& distance) const
   float tMax;
 
   localRay.direction *= d;
-  if (_mesh->bounds().intersect(localRay, tMin, tMax))
-  {
-    // TODO: mesh intersection
+  //if (_mesh->bounds().intersect(localRay, tMin, tMax))
+  //{
+    if (intersectMesh(ray, *_mesh, hit)) {
+        hit.object = this;
+        return true;
+    }
+    /*
     if (tMin >= ray.tMin && tMin <= ray.tMax)
     {
-      distance = tMin * d;
+      hit.distance = tMin * d;
       return true;
     }
     if (tMax >= ray.tMin && tMax <= ray.tMax)
     {
-      distance = tMax * d;
+      hit.distance = tMax * d;
       return true;
     }
-  }
+    */
+  //}
   return false;
 }
-
 } // end namespace cg

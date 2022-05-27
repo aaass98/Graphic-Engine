@@ -44,39 +44,117 @@ namespace cg
 //
 // Light: light class
 // =====
-class Light: public Component
-{
-public:
-  enum Type
-  {
-    Directional,
-    Point,
-    Spot
-  };
+    class Light : public Component
+    {
+    public:
+        enum Type
+        {
+            Directional,
+            Point,
+            Spot
+        };
 
-  Color color{Color::white};
+        Color color{ Color::white };
 
-  Light():
-    Component{"Light"},
-    _type{Directional}
-  {
-    // do nothing
-  }
+        Light(SceneObject* sceneObject) :
+            Component{ "Light", sceneObject },
+            _type{ Directional }
+        {
+            // do nothing
+        }
 
-  auto type() const
-  {
-    return _type;
-  }
+        Light() :
+            Component{ "Light" },
+            _type{ Directional }
+        {
+            // do nothing
+        }
 
-  void setType(Type type)
-  {
-    _type = type;
-  }
+        auto type() const
+        {
+            return _type;
+        }
 
-private:
-  Type _type;
+        void setType(Type type)
+        {
+            _type = type;
+        }
 
-}; // Light
+        void update() {
+
+        }
+
+
+        //Directional Light
+        vec3f getWorldDirection() {
+            _worldRotation = transform()->rotation() * quatf::eulerAngles(_localEulerAngles);
+            vec3f worldDirection = _worldRotation * vec3f(0, 0, 1);
+            return worldDirection.normalize();
+        }
+
+        void setLocalEulerAngles(vec3f angles) {
+            _localEulerAngles = angles;
+            _worldRotation = transform()->rotation() * quatf::eulerAngles(angles);
+        }
+
+        vec3f getLocalEulerAngles() {
+            return _localEulerAngles;
+        }
+
+        //Point Light
+        float getFalloff() {
+            return _falloff;
+        }
+
+        void setFalloff(float falloff) {
+            if (falloff < 0) {
+                falloff = 0;
+            }
+            else if (falloff > 2) {
+                falloff = 2;
+            }
+            _falloff = falloff;
+        }
+
+        //Spot Light
+        float getSpotlightAngle() {
+            return _spotlightAngle;
+        }
+
+        float getSpotlightAngleRadians() {
+            return _spotlightAngleRadians;
+        }
+
+        void setSpotlightAngle(float angle) {
+            _spotlightAngle = angle;
+            _spotlightAngleRadians = angle * M_PI / 180;
+        }
+
+        float getRadialFalloff() {
+            return _radialFalloff;
+        }
+
+        void setRadialFalloff(float f) {
+            _radialFalloff = f;
+        }
+
+    private:
+        Type _type;
+
+        //Directional Light
+        vec3f _localEulerAngles = vec3f(0, 0, 0); //also used for spot light
+        quatf _worldRotation = quatf(0, 0, 0, 1);;
+
+
+        //Point Light
+        float _falloff = 1; //0~2 also used for Spot Light
+
+        //Spot Light
+        float _spotlightAngle = 30;
+        float _spotlightAngleRadians = M_PI / 6;
+        float _radialFalloff = 1;
+
+    }; // Light
 
 } // end namespace cg
 

@@ -32,7 +32,9 @@
 
 #include "Camera.h"
 #include "RayTracer.h"
+#include "Primitive.h"
 #include <time.h>
+#include "BVH.h"
 
 using namespace std;
 
@@ -181,7 +183,7 @@ RayTracer::trace(const Ray& ray, uint32_t level, float weight)
   _numberOfRays++;
 
   Intersection hit;
-
+  
   return intersect(ray, hit) ? shade(ray, hit, level, weight) : background();
 }
 
@@ -202,8 +204,60 @@ RayTracer::intersect(const Ray& ray, Intersection& hit)
 {
   hit.object = nullptr;
   hit.distance = ray.tMax;
-  // TODO: insert your code here
+  //go through each object
+  recursiveIntersect(ray, hit, _scene);
   return hit.object != nullptr;
+}
+
+void RayTracer::recursiveIntersect(const Ray& ray, Intersection& hit, SceneNode* node) {
+    SceneObjectListIterator* it = node->objectIterator();
+    SceneObject* obj = it->start();
+    while (obj) {
+        recursiveIntersect(ray, hit, obj);
+        obj = it->next();
+    }
+    SceneObject* currentObj = dynamic_cast<SceneObject*>(node);
+    if (currentObj) {
+        Component* comp = currentObj->getComponent("Primitive");
+        if (comp) {
+            Primitive* prim = dynamic_cast<Primitive*>(comp);
+            if (prim) {
+                TriangleMesh* mesh = prim->mesh();
+                if (mesh) {
+                    BVH* bvh = bvhMap[mesh];
+                    if (bvh == nullptr)
+                        bvhMap[mesh] = bvh = new BVH{ *mesh, 16 };
+                    if (bvh->intersect(ray, hit))
+                        prim->intersect(ray, hit);
+                }
+            }
+        }
+    }
+}
+
+
+
+BVH* RayTracer::getBVH(SceneObject* obj) {
+    Component* comp = obj->getComponent("Primitive");
+    if (comp) {
+        Primitive* prim = dynamic_cast<Primitive*>(comp);
+        if (prim) {
+            TriangleMesh* mesh = prim->mesh();
+            if (mesh) {
+                BVH* bvh = bvhMap[mesh];
+                if (bvh == nullptr)
+                    bvhMap[mesh] = bvh = new BVH{ *mesh, 16 };
+                return bvh;
+            }
+        }
+    }
+}
+
+BVH* RayTracer::getBVH(TriangleMesh* mesh) {
+    BVH* bvh = bvhMap[mesh];
+    if (bvh == nullptr)
+        bvhMap[mesh] = bvh = new BVH{ *mesh, 16 };
+    return bvh;
 }
 
 Color
@@ -217,7 +271,8 @@ RayTracer::shade(const Ray& ray, Intersection& hit, int level, float weight)
 //|  @return color at point P                           |
 //[]---------------------------------------------------[]
 {
-  // TODO: insert your code here
+  _numberOfHits++;
+  //return Color::red;
   return Color::black;
 }
 

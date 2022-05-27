@@ -52,25 +52,25 @@ public:
 
   /// Constructs an empty scene.
   Scene(const char* name):
-    SceneNode{name},
-    _root{"\0x1bRoot", *this}
+    SceneNode{name}
   {
-    SceneObject::makeUse(&_root);
+    _root = new SceneObject("\0x1bRoot", this);
+    SceneObject::makeUse(_root);
   }
 
   /// Returns the root scene object of this scene.
   auto root() const
   {
-    return &_root;
+    return _root;
   }
 
   auto root()
   {
-    return &_root;
+    return _root;
   }
 
 private:
-  SceneObject _root;
+  SceneObject* _root;
 
 }; // Scene
 

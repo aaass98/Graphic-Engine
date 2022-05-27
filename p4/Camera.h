@@ -62,6 +62,8 @@ public:
   /// Constructs a default camera.
   Camera(float aspect = 1);
 
+  Camera(SceneObject* object, float aspect = 1);
+
   ~Camera() override;
 
   float viewAngle() const;
@@ -89,6 +91,9 @@ public:
   }
 
   static void setCurrent(Camera* camera);
+
+  inline float F() { return _F; }
+  inline float B() { return _B; }
 
 private:
   float _viewAngle;

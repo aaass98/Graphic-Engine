@@ -91,6 +91,20 @@ Transform::Transform():
   _inverseMatrix = _matrix;
 }
 
+Transform::Transform(SceneObject* sceneObject) :
+    Component{ "Transform", sceneObject },
+    _localPosition{ 0.0f },
+    _localRotation{ quatf::identity() },
+    _localEulerAngles{ 0.0f },
+    _localScale{ 1.0f },
+    _matrix{ 1.0 }
+{
+    _position = _localPosition;
+    _rotation = _localRotation;
+    _lossyScale = _localScale;
+    _inverseMatrix = _matrix;
+}
+
 inline mat4f
 Transform::localMatrix() const
 {
@@ -160,32 +174,53 @@ Transform::reset()
 void
 Transform::update()
 {
-  auto p = parent();
-
-  _matrix = p->_matrix * localMatrix();
-  _position = translation(_matrix);
-  _rotation = p->_rotation * _localRotation;
-  _lossyScale = scale(_rotation, _matrix);
-  _inverseMatrix = inverseLocalMatrix() * p->_inverseMatrix;
-  // TODO: update the transform of all scene object's children.
-  changed = true;
+    if (auto p = parent()) {
+        _matrix = p->_matrix * localMatrix();
+        _position = translation(_matrix);
+        _rotation = p->_rotation * _localRotation;
+        _lossyScale = scale(_rotation, _matrix);
+        _inverseMatrix = inverseLocalMatrix() * p->_inverseMatrix;
+    }
+    else {
+        _matrix = localMatrix();
+        _position = translation(_matrix);
+        _rotation = _localRotation;
+        _lossyScale = scale(_rotation, _matrix);
+        _inverseMatrix = inverseLocalMatrix();
+    }
+    SceneObjectListIterator* it = sceneObject()->objectIterator();
+    SceneObject* obj = it->start();
+    while (obj) {
+        obj->transform()->update();
+        obj = it->next();
+    }
+    it->dispose();
+    changed = true;
 }
 
 void
 Transform::parentChanged()
 {
-  auto p = parent();
-  auto m = p->_inverseMatrix * _matrix;
+    auto p = parent();
+    auto m = p->_inverseMatrix * _matrix;
 
-  _localPosition = translation(m);
-  _localRotation = p->_rotation.inverse() * _rotation;
-  _localEulerAngles = _localRotation.eulerAngles();
-  _localScale = scale(_localRotation, m);
-  _matrix = p->_matrix * localMatrix();
-  _lossyScale = scale(_rotation, _matrix);
-  _inverseMatrix = inverseLocalMatrix() * p->_inverseMatrix;
-  // TODO: update the transform of all scene object's children.
-  changed = true;
+    _localPosition = translation(m);
+    _localRotation = p->_rotation.inverse() * _rotation;
+    _localEulerAngles = _localRotation.eulerAngles();
+    _localScale = scale(_localRotation, m);
+    _matrix = p->_matrix * localMatrix();
+    _lossyScale = scale(_rotation, _matrix);
+    _inverseMatrix = inverseLocalMatrix() * p->_inverseMatrix;
+
+    SceneObjectListIterator* it = sceneObject()->objectIterator();
+    SceneObject* obj = it->start();
+    while (obj) {
+        obj->transform()->parentChanged();
+        obj = it->next();
+    }
+    it->dispose();
+
+    changed = true;
 }
 
 void
